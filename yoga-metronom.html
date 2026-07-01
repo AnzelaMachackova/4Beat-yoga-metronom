@@ -23,14 +23,14 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
     transition: background 0.15s, border-color 0.15s, transform 0.1s; margin-bottom: 1rem;
   }
-  .breath-circle.inhale { background: #e1f5ee; border-color: #5dcaa5; transform: scale(1.06); }
-  .breath-circle.exhale { background: #eeedfe; border-color: #afa9ec; transform: scale(0.96); }
+  .breath-circle.inhale { background: #a8ecd4; border-color: #0f9e6a; transform: scale(1.06); }
+  .breath-circle.exhale { background: #c7c3f7; border-color: #5a50cc; transform: scale(0.96); }
   .breath-arrow { font-size: 36px; line-height: 1; transition: color 0.15s; color: #b4b2a9; }
-  .inhale .breath-arrow { color: #0f6e56; }
-  .exhale .breath-arrow { color: #534ab7; }
+  .inhale .breath-arrow { color: #075c38; }
+  .exhale .breath-arrow { color: #2e279a; }
   .breath-word { font-size: 18px; font-weight: 500; color: #888780; transition: color 0.15s; }
-  .inhale .breath-word { color: #0f6e56; }
-  .exhale .breath-word { color: #534ab7; }
+  .inhale .breath-word { color: #075c38; }
+  .exhale .breath-word { color: #2e279a; }
   .beat-counter { font-size: 13px; color: #b4b2a9; height: 18px; }
   .beats-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 2.5rem; }
   .beat-dot {
@@ -51,7 +51,7 @@
     transition: background 0.1s, transform 0.08s;
   }
   .arrow-btn:active { background: #e1f5ee; transform: scale(0.93); }
-  .val { font-size: 14px; font-weight: 500; min-width: 44px; text-align: right; color: #1a1a18; }
+  .val { font-size: 14px; font-weight: 500; width: 48px; text-align: center; color: #1a1a18; border: 1px solid #d3d1c7; border-radius: 8px; background: #fff; padding: 4px 2px; }
   .pattern-row { display: flex; gap: 8px; }
   .pat-btn {
     flex: 1; padding: 8px 4px; border-radius: 20px; border: 1px solid #d3d1c7; background: #fff;
@@ -97,7 +97,7 @@
     <button class="arrow-btn" onclick="changeBpm(-1)">&#8722;</button>
     <input type="range" min="40" max="120" step="0.1" value="70.1" id="bpmRange">
     <button class="arrow-btn" onclick="changeBpm(1)">&#43;</button>
-    <span class="val" id="bpmVal">70.1</span>
+    <input type="number" class="val" min="40" max="120" step="0.1" value="70.1" id="bpmVal">
   </div>
 
   <div class="row">
@@ -196,8 +196,7 @@ function changeBpm(delta) {
   bpm = parseFloat((bpm + delta).toFixed(1));
   if (bpm < 40) bpm = 40;
   if (bpm > 120) bpm = 120;
-  document.getElementById('bpmRange').value = bpm;
-  document.getElementById('bpmVal').textContent = bpm.toFixed(1);
+  updateBpmDisplay();
 }
 
 function tapTempo() {
@@ -218,8 +217,7 @@ function tapTempo() {
     bpm = Math.round((60000 / avg) * 10) / 10;
     if (bpm < 40) bpm = 40;
     if (bpm > 120) bpm = 120;
-    document.getElementById('bpmRange').value = bpm;
-    document.getElementById('bpmVal').textContent = bpm.toFixed(1);
+    updateBpmDisplay();
     document.getElementById('tapHint').textContent = bpm.toFixed(1) + ' BPM (' + tapTimes.length + ' taps)';
   } else {
     document.getElementById('tapHint').textContent = 'Keep tapping\u2026';
@@ -232,9 +230,25 @@ function tapTempo() {
   }, 3000);
 }
 
+function updateBpmDisplay() {
+  document.getElementById('bpmRange').value = bpm;
+  document.getElementById('bpmVal').value = bpm.toFixed(1);
+}
 document.getElementById('bpmRange').addEventListener('input', function() {
   bpm = parseFloat(this.value);
-  document.getElementById('bpmVal').textContent = bpm.toFixed(1);
+  document.getElementById('bpmVal').value = bpm.toFixed(1);
+  tapTimes = [];
+  document.getElementById('tapHint').textContent = 'Tap at least 3 times to set BPM';
+});
+
+document.getElementById('bpmVal').addEventListener('change', function() {
+  var v = parseFloat(this.value);
+  if (isNaN(v)) v = 70.1;
+  if (v < 40) v = 40;
+  if (v > 120) v = 120;
+  bpm = Math.round(v * 10) / 10;
+  this.value = bpm.toFixed(1);
+  document.getElementById('bpmRange').value = bpm;
   tapTimes = [];
   document.getElementById('tapHint').textContent = 'Tap at least 3 times to set BPM';
 });
